@@ -1,6 +1,9 @@
 {
 	"folders": [
 		{
+			"path": "."
+		},
+		{
 			"path": "backend"
 		},
 		{
@@ -12,6 +15,9 @@
 			"**/*venv": true,
 			"**/__pycache__": true,
 			"dist": true,
+			"backend": true,
+			"frontend": true,
+			"node_modules": true,
 		},
 		"[python]": {
 			"editor.defaultFormatter": "ms-python.autopep8"
