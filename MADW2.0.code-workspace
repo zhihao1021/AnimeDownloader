@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"path": "backend"
+		},
+		{
+			"path": "frontend"
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"**/*venv": true,
+			"**/__pycache__": true,
+			"dist": true,
+		},
+		"[python]": {
+			"editor.defaultFormatter": "ms-python.autopep8"
+		},
+		"python.formatting.provider": "none",
+	}
+}
