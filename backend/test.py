@@ -49,7 +49,7 @@ async def main():
             # data=data,
             data="d=%7B%22c%22%3A%221247%22%2C%22e%22%3A%221%22%2C%22t%22%3A1684128579%2C%22p%22%3A0%2C%22s%22%3A%2285a90724f60c99940a11000ce8f6b66b%22%7D"
         )
-        print(res.status, res.cookies)
+        print(res.status, res.content.read_nowait())
         res = await client.head(URL, headers=HEADER)
         print(res.status)
 

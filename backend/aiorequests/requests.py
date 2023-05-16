@@ -1,7 +1,7 @@
-from .type import RequestMethod, ResultType
+import method
+import type
 
-from utils.json import Json
-from utils.utils import string_exception
+from utils import Json, string_exception
 
 from config import HTTP_CONFIG
 from logging import getLogger
@@ -30,9 +30,9 @@ async def requests(
     url: str,
     client: Optional[ClientSession] = None,
     *,
-    method: int = RequestMethod.GET,
+    method_: int = method.GET,
     data: Any = None,
-    result_type: int = ResultType.BYTES,
+    result_type: int = type.BYTES,
     max_redirects: int = 10,
     raise_exception: bool = False,
     ssl: bool = HTTP_CONFIG.ssl,
@@ -70,7 +70,7 @@ async def requests(
             kwargs["timeout"] = ClientTimeout(connect=timeout)
 
         # 設定請求方法
-        if method == RequestMethod.POST:
+        if method_ == method.POST:
             request = client.post
             try:
                 data = Json.dumps(data) if type(
@@ -78,7 +78,7 @@ async def requests(
             except:
                 pass
             kwargs["data"] = data
-        elif method == RequestMethod.HEAD:
+        elif method_ == method.HEAD:
             request = client.head
         else:
             request = client.get
@@ -87,18 +87,18 @@ async def requests(
         result = await request(**kwargs)
 
         # 回傳
-        if result_type == ResultType.RAW:
+        if result_type == type.RAW:
             return result
-        elif result_type == ResultType.BYTES:
+        elif result_type == type.BYTES:
             return await result.content.read()
-        elif result_type == ResultType.SOUP:
+        elif result_type == type.SOUP:
             return BeautifulSoup(
                 await result.content.read(),
                 features="html.parser",
             )
-        elif result_type == ResultType.JSON:
+        elif result_type == type.JSON:
             return await result.json()
-        elif result_type == ResultType.HEADERS:
+        elif result_type == type.HEADERS:
             return result.headers
     except Exception as exc:
         # 紀錄錯誤

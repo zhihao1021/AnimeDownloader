@@ -1,4 +1,4 @@
-from utils.json import Json
+from utils import Json
 
 from asyncio import run
 from datetime import datetime, timedelta, timezone
