@@ -1,5 +1,4 @@
-import method
-import type
+from .enum import RequestMethod, ResultType
 
 from utils import Json, string_exception
 
@@ -22,7 +21,10 @@ def new_client(
     return ClientSession(
         headers=headers,
         cookies=cookies,
-        conn_timeout=timeout
+        timeout=ClientTimeout(
+            connect=timeout,
+            sock_connect=timeout,
+        ),
     )
 
 
@@ -30,9 +32,9 @@ async def requests(
     url: str,
     client: Optional[ClientSession] = None,
     *,
-    method_: int = method.GET,
+    method: RequestMethod = RequestMethod.GET,
     data: Any = None,
-    result_type: int = type.BYTES,
+    result_type: ResultType = ResultType.BYTES,
     max_redirects: int = 10,
     raise_exception: bool = False,
     ssl: bool = HTTP_CONFIG.ssl,
@@ -44,7 +46,7 @@ async def requests(
     new_client_timeout: float = HTTP_CONFIG.timeout,
 ) -> Optional[Union[bytes, CIMultiDictProxy, ClientResponse, BeautifulSoup, dict, list]]:
     # 檢查Client是否為None
-    client_need_close = client == None
+    client_need_close = client is None
     client = client if client else new_client(
         headers=new_client_headers,
         cookies=new_client_cookies,
@@ -70,35 +72,31 @@ async def requests(
             kwargs["timeout"] = ClientTimeout(connect=timeout)
 
         # 設定請求方法
-        if method_ == method.POST:
-            request = client.post
+        request = getattr(client, method)
+        if method == RequestMethod.POST:
             try:
                 data = Json.dumps(data) if type(
                     data) not in (str, bytes) else data
             except:
                 pass
             kwargs["data"] = data
-        elif method_ == method.HEAD:
-            request = client.head
-        else:
-            request = client.get
 
         # 發出請求
-        result = await request(**kwargs)
+        result: ClientResponse = await request(**kwargs)
 
         # 回傳
-        if result_type == type.RAW:
+        if result_type == ResultType.RAW:
             return result
-        elif result_type == type.BYTES:
+        elif result_type == ResultType.BYTES:
             return await result.content.read()
-        elif result_type == type.SOUP:
+        elif result_type == ResultType.SOUP:
             return BeautifulSoup(
                 await result.content.read(),
                 features="html.parser",
             )
-        elif result_type == type.JSON:
+        elif result_type == ResultType.JSON:
             return await result.json()
-        elif result_type == type.HEADERS:
+        elif result_type == ResultType.HEADERS:
             return result.headers
     except Exception as exc:
         # 紀錄錯誤

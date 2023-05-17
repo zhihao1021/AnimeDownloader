@@ -1,1 +1,1 @@
-from .myself import MyselfData, MyselfDataBase
+from .myself import MyselfData, MyselfDataBase, MyselfVideo

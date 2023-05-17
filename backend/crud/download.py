@@ -1,4 +1,4 @@
-from .base import CURDBase
+from .base import CRUDBase
 
 from aiosqlmodel import AsyncSession
 from config import ENGINE
@@ -10,7 +10,7 @@ from typing import Optional
 from sqlmodel import select
 
 
-class CURDDownloadData(CURDBase[DownloadData, DownloadDataCreate, DownloadDataUpdate]):
+class CRUDDownloadData(CRUDBase[DownloadData, DownloadDataCreate, DownloadDataUpdate]):
     def __init__(self) -> None:
         super().__init__(DownloadData)
 

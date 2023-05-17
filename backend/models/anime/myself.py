@@ -2,7 +2,13 @@ from ..base import IDBase
 
 from typing import Optional
 
+from pydantic import BaseModel
 from sqlmodel import Column, Field as SQLField, JSON
+
+
+class MyselfVideo(BaseModel):
+    name: str
+    vid: str
 
 
 class MyselfDataBase(IDBase):
@@ -17,7 +23,7 @@ class MyselfDataBase(IDBase):
     remarks: Optional[str] = SQLField(None, title="備註", nullable=True)
     intro: Optional[str] = SQLField(None, title="介紹", nullable=True)
     image_path: Optional[str] = SQLField(None, title="封面圖片網址", nullable=True)
-    vid_list: list[dict[str, str]] = SQLField(
+    video_list: list[dict[str, str]] = SQLField(
         [], title="資料列表", sa_column=Column(JSON()))
     update_date: int = SQLField(0, title="資料更新日期", nullable=False)
     finished: bool = SQLField(False, title="是否已完結")

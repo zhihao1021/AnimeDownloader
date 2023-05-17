@@ -19,7 +19,7 @@ SchemaType = TypeVar("SchemaType", bound=BaseModel)
 _TSelectParam = TypeVar("_TSelectParam")
 
 
-class CURDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
+class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def __init__(self, model: Type[ModelType]) -> None:
         self.model = model
 

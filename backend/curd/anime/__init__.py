@@ -1,1 +1,0 @@
-from .myself import CURDMyselfData

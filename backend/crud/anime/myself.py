@@ -1,4 +1,4 @@
-from ..base import CURDBase
+from ..base import CRUDBase
 
 from aiosqlmodel import AsyncSession
 from config import ENGINE
@@ -10,7 +10,7 @@ from typing import Optional, Type
 from sqlmodel import select
 
 
-class CURDMyselfData(CURDBase[MyselfData, MyselfDataCreate, MyselfDataUpdate]):
+class CRUDMyselfData(CRUDBase[MyselfData, MyselfDataCreate, MyselfDataUpdate]):
     def __init__(self) -> None:
         super().__init__(MyselfData)
 

@@ -1,8 +1,11 @@
+from re import sub
 from traceback import format_exception as tformat_exception
 from sys import version_info
 
 import inspect
 from pydantic import BaseModel
+
+FILE_SAFE_STRING = "".join(map(chr, range(32))) + "<>:\"/\\|?*"
 
 
 def format_exception(exc: Exception) -> list[str]:
@@ -11,6 +14,11 @@ def format_exception(exc: Exception) -> list[str]:
 
 def string_exception(exc: Exception) -> str:
     return "".join(format_exception(exc)).strip()
+
+
+def filename_safe(filename: str):
+    result = sub(f"[{FILE_SAFE_STRING}]+", "_", filename).rstrip(" .")
+    return result
 
 
 def optional(*fields):

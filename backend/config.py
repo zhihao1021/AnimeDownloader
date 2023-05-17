@@ -1,6 +1,5 @@
 from utils import Json
 
-from asyncio import run
 from datetime import datetime, timedelta, timezone
 from os.path import isfile
 
@@ -68,5 +67,5 @@ ENGINE = create_async_engine(
 TIMEZONE = timezone(timedelta(hours=config.get("timezone", 8)))
 
 
-def NOWTIME() -> datetime:
-    return datetime.now(TIMEZONE)
+def NOWTIME(timezone: bool = True) -> datetime:
+    return datetime.now(TIMEZONE if timezone else None)
