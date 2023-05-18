@@ -25,7 +25,7 @@ class MyselfDataBase(IDBase):
     image_path: Optional[str] = SQLField(None, title="封面圖片網址", nullable=True)
     video_list: list[dict[str, str]] = SQLField(
         [], title="資料列表", sa_column=Column(JSON()))
-    update_date: int = SQLField(0, title="資料更新日期", nullable=False)
+    update_time: int = SQLField(0, title="資料更新時間 ", nullable=False)
     finished: bool = SQLField(False, title="是否已完結")
 
 

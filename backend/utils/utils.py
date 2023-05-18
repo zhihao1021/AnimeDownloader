@@ -1,8 +1,8 @@
+from inspect import isclass
 from re import sub
-from traceback import format_exception as tformat_exception
 from sys import version_info
+from traceback import format_exception as tformat_exception
 
-import inspect
 from pydantic import BaseModel
 
 FILE_SAFE_STRING = "".join(map(chr, range(32))) + "<>:\"/\\|?*"
@@ -29,7 +29,7 @@ def optional(*fields):
                 _cls.__fields__[field].default = None
         return _cls
 
-    if fields and inspect.isclass(fields[0]) and issubclass(fields[0], BaseModel):
+    if fields and isclass(fields[0]) and issubclass(fields[0], BaseModel):
         cls = fields[0]
         fields = cls.__fields__
         return dec(cls)

@@ -1,24 +1,45 @@
-from aiohttp import ClientSession
-from asyncio import run
-from time import time
-from orjson import dumps, loads
-from bs4 import BeautifulSoup
-"""
-{"tid":"","vid":"","id":"AgADDggAAtx3aVU"}
-"""
+from sql_init import sql_init
 
+from asyncio import run
+from os import getenv, getpid
+from os.path import isfile
+
+from dotenv import load_dotenv
+
+if isfile(".env"):
+    load_dotenv(".env")
+DEBUG = getenv("DEBUG", False)
+if type(DEBUG) != bool:
+    DEBUG = DEBUG.lower() == "true"
+print(f"DEBUG: {DEBUG}")
 
 async def main():
-    async with ClientSession(
-        headers={
-            "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 OPR/98.0.0.0"}
-    ) as client:
-        res = await client.get(
-            "https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjEwMmamvv-AhXC4GEKHZiMDcsQjBB6BAgZEAE&url=https%3A%2F%2Fmyself-bbs.com%2Fthread-49466-1-1.html",
-            allow_redirects=True,
-        )
-        # soup =
-        print(res)
-        print(res.headers)
+    from anime import Myself
+    from time import time
+    timer = time()
+    for _ in range(3):
+        # res = await Myself.get_yearly_data(update=True)
+        # res = await Myself.get_weekly_update(update=True)
+        pass
+    print(time() - timer)
+    timer = time()
+    for _ in range(1):
+        res = await Myself.get_yearly_data(update=None)
+        # res = await Myself.get_weekly_update(update=None)
+    # print(res["202301"][0].dict())
+    print(time() - timer)
+    timer = time()
+    print(await Myself.get(res["202301"][0].url))
+    print(time() - timer)
 
-run(main())
+if __name__ == "__main__":
+    with open("PID", mode="w") as pid_file:
+        pid_file.write(str(getpid()))
+
+    from platform import system
+    if system() == "Windows":
+        from asyncio import set_event_loop_policy, WindowsSelectorEventLoopPolicy
+        set_event_loop_policy(WindowsSelectorEventLoopPolicy())
+    run(sql_init())
+
+    run(main())
