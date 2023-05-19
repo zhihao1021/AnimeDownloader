@@ -1,9 +1,10 @@
 from .base import IDBase
 
+from datetime import datetime
 from enum import auto, Enum
 from typing import Optional
 
-from sqlmodel import Column, Enum as SQLEnum, Field as SQLField
+from sqlmodel import Column, DATETIME, Enum as SQLEnum, Field as SQLField
 
 
 class DownloadStatus(int, Enum):
@@ -23,8 +24,8 @@ class DownloadDataBase(IDBase):
         DownloadStatus.NONE, title="下載狀態", description="當前下載狀態", sa_column=Column(SQLEnum(DownloadStatus)), nullable=False)
     download_path: Optional[str] = SQLField(
         None, title="下載位置", description="動畫下載位置", nullable=True)
-    download_timestamp: int = SQLField(
-        0, title="下載時間", description="動畫下載時間", nullable=False)
+    download_time: datetime = SQLField(
+        None, title="下載時間", description="動畫下載時間", nullable=True, sa_column=(DATETIME()))
 
 
 class DownloadData(DownloadDataBase, table=True):

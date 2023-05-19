@@ -13,24 +13,25 @@ if type(DEBUG) != bool:
     DEBUG = DEBUG.lower() == "true"
 print(f"DEBUG: {DEBUG}")
 
+
 async def main():
     from anime import Myself
     from time import time
     timer = time()
-    for _ in range(3):
-        # res = await Myself.get_yearly_data(update=True)
+    for _ in range(1):
+        res = await Myself.get_yearly_data(update=True)
         # res = await Myself.get_weekly_update(update=True)
         pass
-    print(time() - timer)
+    print("Online:", time() - timer)
     timer = time()
-    for _ in range(1):
-        res = await Myself.get_yearly_data(update=None)
+    for _ in range(10):
+        res = await Myself.get_yearly_data(update=False)
         # res = await Myself.get_weekly_update(update=None)
     # print(res["202301"][0].dict())
-    print(time() - timer)
+    print("DB:", time() - timer)
     timer = time()
     print(await Myself.get(res["202301"][0].url))
-    print(time() - timer)
+    print("One Page", time() - timer)
 
 if __name__ == "__main__":
     with open("PID", mode="w") as pid_file:

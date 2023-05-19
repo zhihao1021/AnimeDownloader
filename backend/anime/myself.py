@@ -1,11 +1,13 @@
 from aiorequests import new_client, requests, ResultType
-from config import HTTP_CONFIG, NOWTIME
+from config import HTTP_CONFIG
 from crud import CRUDData
 from crud.anime import CRUDMyselfData
 from models import Data
 from models.anime import MyselfData, MyselfVideo
+from schemas.anime import MyselfDataCreate
 from utils import Json, string_exception
 
+from asyncio import create_task, gather
 from datetime import datetime, timedelta
 from fastapi.encoders import jsonable_encoder
 from logging import getLogger
@@ -82,8 +84,7 @@ class Myself:
             elif origin_data.finished:
                 update = False
             else:
-                update_time = datetime.fromtimestamp(origin_data.update_time)
-                update = NOWTIME(False) - update_time > UPDATE_TIME_DELTA
+                update = datetime.utcnow() - origin_data.update_time > UPDATE_TIME_DELTA
 
         if update:
             soup = await requests(
@@ -91,6 +92,8 @@ class Myself:
                 client=client,
                 result_type=ResultType.SOUP,
             )
+            if soup is None:
+                return None
 
             info_text = tuple(map(
                 lambda tag: tag.text.split(": ", 1)[1].strip(),
@@ -115,14 +118,14 @@ class Myself:
                     }
                     for tag in soup.select("ul.main_list li:has(ul a[data-href*='myself-bbs'])")
                 ],
-                "update_time": int(NOWTIME().timestamp()),
                 "finished": soup.select_one("div.z>a[href='forum-113-1.html']") is not None
             }
 
             if origin_data:
                 result = await crud_myself_data.update(origin_data, update_data)
             else:
-                new_data = MyselfData(**update_data)
+                new_data = MyselfDataCreate(
+                    update_time=datetime.utcnow(), **update_data)
                 result = await crud_myself_data.create(new_data)
         else:
             result = origin_data
@@ -140,8 +143,7 @@ class Myself:
             if origin_data is None:
                 update = True
             else:
-                update_time = datetime.fromtimestamp(origin_data.update_time)
-                update = NOWTIME(False) - update_time > UPDATE_TIME_DELTA
+                update = datetime.utcnow() - origin_data.update_time > UPDATE_TIME_DELTA
 
         if update:
             soup = await requests(
@@ -149,11 +151,13 @@ class Myself:
                 client=client,
                 result_type=ResultType.SOUP
             )
+            if soup is None:
+                return []
 
             week_data = [
                 [
                     (
-                        MyselfData(
+                        MyselfDataCreate(
                             url=(
                                 url := f"https://myself-bbs.com/{a_tag['href']}"),
                             tid=search("(?<=/thread-)\d+", url).group(),
@@ -210,8 +214,7 @@ class Myself:
             if origin_data is None:
                 update = True
             else:
-                update_time = datetime.fromtimestamp(origin_data.update_time)
-                update = NOWTIME(False) - update_time > UPDATE_TIME_DELTA
+                update = datetime.utcnow() - origin_data.update_time > UPDATE_TIME_DELTA
 
         if update:
             soup = await requests(
@@ -219,6 +222,8 @@ class Myself:
                 client=client,
                 result_type=ResultType.SOUP
             )
+            if soup is None:
+                return {}
 
             year_data = {
                 sub("[^\d]+", "", season_tag.select_one(".title").text): [
@@ -249,11 +254,22 @@ class Myself:
                     data=model_data
                 )
                 await crud_data.create(new_data)
+
+            tid_list = await crud_myself_data.get_all_tid()
+            for values in year_data.values():            
+                add_list = list(filter(lambda value: value.tid not in tid_list, values))
+                await crud_myself_data.create_list(add_list)
+                res = list(map(lambda value: value.tid, add_list))
+                tid_list += res
+            # await gather(*[
+            #     create_task(crud_myself_data.create_list(values))
+            # ])
         else:
             data = origin_data.data if origin_data else {}
             result = {
                 key: [
                     MyselfData(**value)
+                    # value
                     for value in values
                 ]
                 for key, values in data.items()

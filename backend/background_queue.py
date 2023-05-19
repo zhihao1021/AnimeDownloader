@@ -11,7 +11,7 @@ class BackgroundQueue():
         self._queue = Queue()
         self.logger = getLogger("backgroundqueue")
         self.task = None
-    
+
     def start(
         self,
         loop: BaseEventLoop
@@ -24,7 +24,7 @@ class BackgroundQueue():
                 if self._queue.empty():
                     await asleep(0.1)
                     continue
-                
+
                 task = await self._queue.get()
                 if iscoroutine(task):
                     await task

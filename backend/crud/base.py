@@ -2,6 +2,7 @@ from aiosqlmodel import AsyncSession
 from config import ENGINE
 from models.base import IDBase
 
+from asyncio import create_task, gather
 from typing import Any, Generic, Optional, Type, TypeVar, Union
 
 from fastapi.encoders import jsonable_encoder
@@ -70,6 +71,25 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             await db_session.refresh(obj)
             return obj
 
+    async def create_list(
+        self,
+        obj_list: list[CreateSchemaType]
+    ) -> list[ModelType]:
+        async with AsyncSession(ENGINE) as db_session:
+            obj_list = list(map(lambda obj: self.model.from_orm(obj), obj_list))
+
+            # try:
+            db_session.add_all(obj_list)
+            await db_session.commit()
+            # except IntegrityError:
+                # await db_session.rollback()
+
+            results = await gather(*map(
+                db_session.refresh,
+                obj_list
+            ))
+            return results
+
     async def update(
         self,
         obj: ModelType,
@@ -84,9 +104,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 update_data = obj_update.dict(
                     exclude_unset=True
                 )  # This tells Pydantic to not include the values that were not sent
-            for field in obj_data:
-                if field in update_data:
-                    setattr(obj, field, update_data[field])
+
+            for field in set(update_data) & set(obj_data):
+                setattr(obj, field, update_data[field])
 
             db_session.add(obj)
             await db_session.commit()

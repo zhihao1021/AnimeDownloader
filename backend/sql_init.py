@@ -4,6 +4,9 @@ from os import getenv
 
 from sqlmodel import SQLModel
 
+import models
+import models.anime
+
 
 async def sql_init():
     DEBUG = getenv("DEBUG", "False").lower() == "true"

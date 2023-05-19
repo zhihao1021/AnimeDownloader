@@ -7,7 +7,7 @@ from schemas.anime import MyselfDataCreate, MyselfDataUpdate
 
 from typing import Optional, Type
 
-from sqlmodel import select
+from sqlmodel import select, update
 
 
 class CRUDMyselfData(CRUDBase[MyselfData, MyselfDataCreate, MyselfDataUpdate]):
@@ -49,3 +49,4 @@ class CRUDMyselfData(CRUDBase[MyselfData, MyselfDataCreate, MyselfDataUpdate]):
                 result = await db_session.exec(select(self.model.tid).where(self.model.finished == finished))
 
             return result.all()
+

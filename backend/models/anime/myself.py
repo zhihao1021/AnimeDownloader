@@ -1,9 +1,10 @@
 from ..base import IDBase
 
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
-from sqlmodel import Column, Field as SQLField, JSON
+from sqlmodel import Column, DATETIME, Field as SQLField, JSON
 
 
 class MyselfVideo(BaseModel):
@@ -25,7 +26,8 @@ class MyselfDataBase(IDBase):
     image_path: Optional[str] = SQLField(None, title="封面圖片網址", nullable=True)
     video_list: list[dict[str, str]] = SQLField(
         [], title="資料列表", sa_column=Column(JSON()))
-    update_time: int = SQLField(0, title="資料更新時間 ", nullable=False)
+    update_time: datetime = SQLField(datetime(1970, 1, 1), title="資料更新時間 ",
+                                     nullable=True, sa_column=Column(DATETIME(), onupdate=datetime.utcnow))
     finished: bool = SQLField(False, title="是否已完結")
 
 

@@ -1,3 +1,4 @@
+from fastapi import FastAPI
 from config import WEB_CONFIG
 from sql_init import sql_init
 from swap import BACKGROUND_QUEUE
@@ -16,12 +17,13 @@ if type(DEBUG) != bool:
     DEBUG = DEBUG.lower() == "true"
 print(f"DEBUG: {DEBUG}")
 
-from fastapi import FastAPI
 app = FastAPI()
+
 
 @app.get("/")
 async def hello():
     return "Hello"
+
 
 async def main(loop: BaseEventLoop):
     await sql_init()

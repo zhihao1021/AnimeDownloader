@@ -2,7 +2,7 @@ from models.data import Data
 from .base import CRUDBase
 
 from aiosqlmodel import AsyncSession
-from config import ENGINE, NOWTIME
+from config import ENGINE
 from models import Data
 from schemas import DataCreate, DataUpdate
 
@@ -24,17 +24,6 @@ class CRUDData(CRUDBase[Data, DataCreate, DataUpdate]):
         async with AsyncSession(ENGINE) as db_session:
             query_stat = select(self.model).where(self.model.tag == tag)
             result = await db_session.exec(query_stat)
+            
 
             return result.first()
-    
-
-    async def update(
-        self,
-        obj: Data,
-        obj_update: Union[DataUpdate, dict[str, Any], Data],
-    ) -> Data:
-        if type(obj_update) == dict:
-            obj_update["update_time"] = int(NOWTIME().timestamp())
-        else:
-            obj_update.update_time = int(NOWTIME().timestamp())
-        return await super().update(obj, obj_update)
